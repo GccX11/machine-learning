@@ -1,3 +1,5 @@
+#author Matt Jacobsen
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import Queue as qu
