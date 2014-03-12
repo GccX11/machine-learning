@@ -3,10 +3,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-m_prv = 0
-m_cur = 6 # The algorithm starts at x=6
-eps = 0.001 # step size
-precision = 0.0001
+b = 9
+m = 6 # The algorithm starts at x=6
+a = 0.001 # step size
 
 X = [1,2,3,4]
 Y = [0,0,1,1]
@@ -14,31 +13,35 @@ Y = [0,0,1,1]
 def logit(x):
     return 1 / (1 + np.exp(-x))
 
-def J(m):
-	summ = 0.0
-	for x,y in zip(X,Y):
-		summ += logit((m*x - y)**2)
-	return summ / (2*len(x))
-
-def dJ(m):
+def J(b, m):
     summ = 0.0
     for x,y in zip(X,Y):
-        summ += logit((m*x - y)**2) * 2*(m*x - y) * x
-    return summ / (2 * len(X))
+        summ += logit((b + m*x - y)**2)
+    return summ / (len(X))
 
-i = 0
-while abs(m_cur - m_prv) > precision:# and i < 1000000:
-    m_prv = m_cur
-    cost = dJ(m_cur)
-    m_cur -= eps * cost
-    #print m_cur, '-', m_prv, '-->', cost
-    i += 1
+def dJ_m():
+    summ = 0.0
+    for x,y in zip(X,Y):
+        summ += logit((b + m*x - y)**2) * 2*(b + m*x - y) * m
+    return summ / 2*(len(X))
 
-print "Local minimum occurs at", m_cur, 'after', i, 'iterations'
+def dJ_b():
+    summ = 0.0
+    for x,y in zip(X,Y):
+        summ += logit((b + m*x - y)**2) * 2*(b + m*x - y)
+    return summ / 2*(len(X))
+
+for _ in xrange(500):
+    m -= a * dJ_m()
+    b -= a * dJ_b()
+    cost = J(b, m)
+    print cost
+
+print "Local minimum occurs at", m, b
 
 vals = []
 for x in X:
-    vals.append(logit(m_cur*x))
+    vals.append(logit(b + m*x))
 
 plt.plot(X, Y, '*', X, vals, '-')
 plt.show()
